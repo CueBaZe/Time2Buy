@@ -9,29 +9,26 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     public function login(Request $request) { //function to check if the login infomation is correct
-        //validate the data
-        $request->validate([
+        $request->validate([ //validate the data
             'name' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        //check if the login infomation is correct (user or email matches the password). If not return error message and status code (403)
+        //check if the login infomation is correct (user or email matches the password).
         $passwordHashed = Hash::make($request->password);
         $user = DB::table('users')->where('name', $request->name OR 'email', $request->name)->where('password', $passwordHashed)->first();
 
-        if ($user) {
+        if ($user) { //return success message and status code
             return response()->json([
                 'success' => true,
                 'message' => 'User logged in',
             ], 200);
-        } else {
+        } else { // If not return error message and status code (403)
             return response()->json([
                 'success' => false,
                 'message' => 'The provided credentials do not match our records.',
             ], 403);
         }
-
-        //return success message and status code
     }
 
     public function logout() { //function to logout the user
