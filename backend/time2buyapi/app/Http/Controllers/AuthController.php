@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -21,6 +22,8 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'User logged in',
+                'userId' => $user->id,
+                'userToken' => $user->token,
             ], 200);
         } else { // If not return error message and status code (403)
             return response()->json([
@@ -33,7 +36,7 @@ class AuthController extends Controller
     public function logout() { //function to logout the user
         //check if the user has an active session. If not retrun error message and status code (404)
 
-        //remove the session
+        //remove the active session
 
         //return success message and status code (200)
     }
@@ -41,12 +44,33 @@ class AuthController extends Controller
     public function register(Request $request) { //function to let the user create an account
 
         //validate the data
+        $request->validate([
+            'name' => 'required|string|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8|regex:/^(?=.*[A-Z])(?=.*\d).+$/',
+            'passwordconfirm' => 'required|same:password',
+        ]);
 
-        //check if the username or email already exists, if it does return error message and status code (403)
+        $hashedPassword = Hash::make($request->password);
+        $token = $this->generateUserToken();
 
         //add the new account data into the user table
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $hashedPassword,
+            'token' => $token,
+        ]);
 
         //return success message and status code (200)
+        return response()->json([
+            'success' => true,
+            'message' => 'User created',
+        ], 200);
 
+    }
+
+    private function generateUserToken() {
+        return str()->random(12);
     }
 }
