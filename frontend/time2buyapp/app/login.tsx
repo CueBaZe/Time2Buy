@@ -3,16 +3,41 @@ import { Text, View, TextInput } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { Link } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { fetch } from 'expo/fetch';
 
 export default function Login() {
 
     const [isChecked, setChecked] = useState(false);
     const [name, setName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [errors, setErrors] = useState<string>('');
+    const [error, setError] = useState<string>('');
     
     const HandleLogin = async () =>  {
-    
+        try {
+            const response = await fetch('http://10.0.2.2:8000/api/login', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                }, 
+                body: JSON.stringify({
+                    name: name,
+                    password: password
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('User is logged in:', data)
+            }
+            else {
+                const errorData = await response.json();
+                console.error('Error with logging in:', errorData)
+            }
+        } catch (error) {
+            console.error('Network error:', error)
+            setError("Could not connect to the server.");
+        }
     }
 
     return (
