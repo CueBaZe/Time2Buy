@@ -29,13 +29,17 @@ export default function Login() {
             <View className='flex-1 items-center justify-center gap-[50px]'>
                 <TextInput className='text-white text-xl text-center w-[250px] border border-2 border-[#BEBEBE] rounded-lg' 
                     placeholder='Username or Email' 
-                    id='username' 
+                    id='username'
+                    value={name}
+                    onChangeText={setName} 
                     placeholderTextColor="#ffffff">
                 </TextInput>
 
                 <TextInput className='text-white text-xl text-center w-[250px] border border-2 border-[#BEBEBE] rounded-lg' 
                     placeholder='Password' 
                     id='password' 
+                    value={password}
+                    onChangeText={setPassword}
                     placeholderTextColor="#ffffff">
                 </TextInput>
 
