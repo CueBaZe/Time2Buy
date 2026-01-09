@@ -29,7 +29,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'The provided credentials do not match our records.',
-            ], 403);
+            ], 401);
         }
     }
 

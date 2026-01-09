@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { Text, View, TextInput } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { Link } from 'expo-router';
@@ -10,7 +10,8 @@ export default function Login() {
     const [isChecked, setChecked] = useState(false);
     const [name, setName] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string>('');
+    const [errors, setErrors] = useState<any>({});
+    const [generalError, setGenerealError] = useState<string>('');
     
     const HandleLogin = async () =>  {
         try {
@@ -25,18 +26,26 @@ export default function Login() {
                     password: password
                 }),
             });
+            setErrors({});
+            setGenerealError('');
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log('User is logged in:', data)
+            const data = await response.json();
+
+            if (!response.ok) {
+                //check errors
+                if (response.status === 422) {
+                    setErrors(data.errors);
+                } else if (response.status === 401) {
+                    setGenerealError(data.message);
+                }
+                return; 
             }
-            else {
-                const errorData = await response.json();
-                console.error('Error with logging in:', errorData)
-            }
-        } catch (error) {
-            console.error('Network error:', error)
-            setError("Could not connect to the server.");
+
+            console.log('User logged in', data)
+            //login the user
+
+        } catch (networkErrors) {
+            setGenerealError('Server Error:' + networkErrors);
         }
     }
 
@@ -47,26 +56,40 @@ export default function Login() {
                 <Text className='text-white text-lg'>See the clock behind the price tag.</Text>
             </View>
 
-            <View className='mt-[50px] border bg-[#282829] p-2 rounded-2xl invisible' id='errorBox'>
-                <Text id='ErrorText' className='text-white text-md'><Ionicons name="information-circle" size={18} color="red" /></Text>
+            <View className='mt-[50px] border bg-[#282829] p-2 rounded-2xl' id='errorBox'>
+                {generalError && (
+                    <Text id='ErrorText' className='text-white text-md'><Ionicons name="information-circle" size={18} color="red" />{generalError}</Text>
+                )}
             </View>
 
-            <View className='flex-1 items-center justify-center gap-[50px]'>
-                <TextInput className='text-white text-xl text-center w-[250px] border border-2 border-[#BEBEBE] rounded-lg' 
-                    placeholder='Username or Email' 
-                    id='username'
-                    value={name}
-                    onChangeText={setName} 
-                    placeholderTextColor="#ffffff">
-                </TextInput>
+            <View className='flex-1 items-center text-center justify-center gap-[50px]'>
+                <View className='items-center'>
+                    <TextInput className={`text-white text-xl text-center w-[250px] border border-2 border-[#BEBEBE] rounded-lg ${errors.name ? 'border-red-500' : ''}`}
+                        placeholder='Username or Email' 
+                        id='name'
+                        value={name}
+                        onChangeText={setName} 
+                        placeholderTextColor="#ffffff">
+                    </TextInput>
+                    {errors.name && (
+                        <Text className='text-red-500 mt-2'>{errors.name[0]}</Text>
+                    )}
+                </View>
+                
+                <View className='items-center '>
+                    <TextInput className={`text-white text-xl text-center w-[250px] border border-2 border-[#BEBEBE] rounded-lg ${errors.password ? 'border-red-500' : ''}`} 
+                        placeholder='Password' 
+                        id='password' 
+                        value={password}
+                        onChangeText={setPassword}
+                        placeholderTextColor="#ffffff">
+                    </TextInput>
 
-                <TextInput className='text-white text-xl text-center w-[250px] border border-2 border-[#BEBEBE] rounded-lg' 
-                    placeholder='Password' 
-                    id='password' 
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholderTextColor="#ffffff">
-                </TextInput>
+                    {errors.password && (
+                        <Text className='text-red-500 mt-2'>{errors.password[0]}</Text>
+                    )}
+
+                </View>
 
                 <View className='flex-2 flex-row gap-3'>
                     <Checkbox
