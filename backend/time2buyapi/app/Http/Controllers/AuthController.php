@@ -40,9 +40,10 @@ class AuthController extends Controller
             'name' => 'required|string|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8|regex:/^(?=.*[A-Z])(?=.*\d).+$/',
-            'passwordconfirm' => 'required|same:password',
+            'passwordconfirm' => 'same:password',
         ], [
             'password.regex' => 'Password must include a capital letter and a digit',
+            'passwordconfirm.same' => 'This field must match the password field',
         ]);
 
         $hashedPassword = Hash::make($request->password);
