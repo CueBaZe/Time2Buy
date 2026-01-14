@@ -1,9 +1,10 @@
 import React, { use, useState } from 'react';
 import { Text, View, TextInput } from 'react-native';
 import Checkbox from 'expo-checkbox';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { fetch } from 'expo/fetch';
+import * as SecureStore from 'expo-secure-store';
 
 export default function Login() {
 
@@ -13,6 +14,8 @@ export default function Login() {
     const [errors, setErrors] = useState<any>({});
     const [generalError, setGenerealError] = useState<string>('');
     
+    const router = useRouter();
+
     const HandleLogin = async () =>  {
         try {
             const response = await fetch('http://10.0.2.2:8000/api/login', {
@@ -41,8 +44,10 @@ export default function Login() {
                 return; 
             }
 
-            console.log('User logged in', data)
-            //login the user
+            await SecureStore.setItemAsync('userToken', String(data.userToken));
+            await SecureStore.setItemAsync('userId', String(data.userId));
+            
+            router.replace('/dashboard')
 
         } catch (networkErrors) {
             setGenerealError('Server Error:' + networkErrors);

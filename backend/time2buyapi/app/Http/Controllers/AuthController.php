@@ -9,6 +9,22 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    public function fetchUserData(Request $request, $id) {
+        $token = $request->bearerToken();
+        $user = DB::table('users')
+            ->where('id', $id)
+            ->where('token', $token)
+            ->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        return response()->json($user);
+    }
+
     public function login(Request $request) { //function to check if the login infomation is correct
         $request->validate([ //validate the data
             'name' => 'required|string',

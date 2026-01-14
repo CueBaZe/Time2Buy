@@ -14,7 +14,6 @@ export default function Register() {
     const [generalError, setGenerealError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
 
-
     const HandleRegister = async () =>  {
 
         setErrors({});
